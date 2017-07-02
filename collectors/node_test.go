@@ -178,15 +178,9 @@ func TestNodeCollector(t *testing.T) {
 				},
 			},
 			want: metadata + `
-				kube_node_status_ready{node="127.0.0.1",condition="true"} 1
-				kube_node_status_ready{node="127.0.0.1",condition="false"} 0
-				kube_node_status_ready{node="127.0.0.1",condition="unknown"} 0
-				kube_node_status_ready{node="127.0.0.2",condition="true"} 0
-				kube_node_status_ready{node="127.0.0.2",condition="false"} 0
-				kube_node_status_ready{node="127.0.0.2",condition="unknown"} 1
-				kube_node_status_ready{node="127.0.0.3",condition="true"} 0
-				kube_node_status_ready{node="127.0.0.3",condition="false"} 1
-				kube_node_status_ready{node="127.0.0.3",condition="unknown"} 0
+				kube_node_status_ready{node="127.0.0.1"} 1
+				kube_node_status_ready{node="127.0.0.2"} -1
+				kube_node_status_ready{node="127.0.0.3"} 0
 			`,
 			metrics: []string{"kube_node_status_ready"},
 		},

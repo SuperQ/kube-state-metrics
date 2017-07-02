@@ -60,12 +60,12 @@ var (
 	descNodeStatusReady = prometheus.NewDesc(
 		"kube_node_status_ready",
 		"The ready status of a cluster node.",
-		[]string{"node", "condition"}, nil,
+		[]string{"node"}, nil,
 	)
 	descNodeStatusOutOfDisk = prometheus.NewDesc(
 		"kube_node_status_out_of_disk",
 		"Whether the node is out of disk space",
-		[]string{"node", "condition"}, nil,
+		[]string{"node"}, nil,
 	)
 	descNodeStatusPhase = prometheus.NewDesc(
 		"kube_node_status_phase",
@@ -75,17 +75,17 @@ var (
 	descNodeStatusMemoryPressure = prometheus.NewDesc(
 		"kube_node_status_memory_pressure",
 		"Whether the kubelet is under pressure due to insufficient available memory.",
-		[]string{"node", "condition"}, nil,
+		[]string{"node"}, nil,
 	)
 	descNodeStatusDiskPressure = prometheus.NewDesc(
 		"kube_node_status_disk_pressure",
 		"Whether the kubelet is under pressure due to insufficient available disk.",
-		[]string{"node", "condition"}, nil,
+		[]string{"node"}, nil,
 	)
 	descNodeStatusNetworkUnavailable = prometheus.NewDesc(
 		"kube_node_status_network_unavailable",
 		"Whether the network is correctly configured for the node.",
-		[]string{"node", "condition"}, nil,
+		[]string{"node"}, nil,
 	)
 
 	descNodeStatusCapacityPods = prometheus.NewDesc(
@@ -251,20 +251,19 @@ func (nc *nodeCollector) collectNode(ch chan<- prometheus.Metric, n v1.Node) {
 }
 
 // addConditionMetrics generates one metric for each possible node condition
-// status. For this function to work properly, the last label in the metric
-// description must be the condition.
+// status. 
 func addConditionMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, cs v1.ConditionStatus, lv ...string) {
+	var value float64
+	switch cs {
+	case v1.ConditionTrue:
+		value = 1.0
+	case v1.ConditionFalse:
+		value = 0.0
+	default:
+		value = -1.0
+	}
 	ch <- prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, boolFloat64(cs == v1.ConditionTrue),
-		append(lv, "true")...,
-	)
-	ch <- prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, boolFloat64(cs == v1.ConditionFalse),
-		append(lv, "false")...,
-	)
-	ch <- prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, boolFloat64(cs == v1.ConditionUnknown),
-		append(lv, "unknown")...,
+		desc, prometheus.GaugeValue, value, append(lv)...,
 	)
 }
 
